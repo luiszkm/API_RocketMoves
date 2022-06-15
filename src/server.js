@@ -1,15 +1,30 @@
-const { request, response } = require('express')
+require("express-async-errors")
+const AppError = require("./utils/AppError")
+const { response } = require("express")
 const express = require('express')
+
+const routes = require("./routes")
+
 
 const app = express()
 app.use(express.json())
 
-app.post("/users", (request,response)=>{
+app.use(routes)
 
-  const { name, email, password } = request.body
+app.use((error, request, response, next) => {
+  if (error instanceof AppError) {
+    return response.status(error.statusCode).json({
+      status: "error",
+      message: error.message
+    })
+  }
+  console.error(error);
 
-  response.json({ name, email, password })
+  return response.status(500).json({
+    status: "error",
+    message: "internal server error"
+  })
 })
 const PORT = 3000
 
-app.listen(PORT,() =>{console.log(`estou na porta ${PORT}`)})
+app.listen(PORT, () => { console.log(`estou na porta ${PORT}`) })
