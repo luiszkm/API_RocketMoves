@@ -41,8 +41,9 @@ class UserController {
     }
     user.name = name ?? user.name
     user.email = email ?? user.email
+
     if(password && !old_password) {
-      throw new AppError("Você precisa informar a  senha antiga")
+      throw new AppError("Você precisa informar a  senha antiga para redefini-la")
     }
 
     if(password && old_password){
@@ -50,7 +51,7 @@ class UserController {
       if(!checkOldPassword){
         throw new AppError("A senha antiga não confere")
       }
-
+      user.password = await hash(password, 8)
     }
 
     await database.run(`
